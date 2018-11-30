@@ -18,12 +18,12 @@ MainWindow::MainWindow(QWidget *parent) :
             this,
             SLOT(tcpDisconnect()));
 
-    connect(ui->lcdNumberMax,
+    connect(ui->horizontalSliderMax,
             SIGNAL(valueChanged(int)),
             this,
             SLOT(ChangeMax()));
 
-    connect(ui->lcdNumberMin,
+    connect(ui->horizontalSliderMin,
             SIGNAL(valueChanged(int)),
             this,
             SLOT(ChangeMin()));
@@ -64,14 +64,14 @@ void MainWindow::tcpDisconnect()
 
 void MainWindow::ChangeMax()
 {
-    if(ui->lcdNumberMax->value() < ui->lcdNumberMin->value())
-        ui->lcdNumberMax->setDigitCount(ui->lcdNumberMax->value()+1);
+    if(ui->lcdNumberMax->digitCount() < ui->lcdNumberMin->digitCount())
+        ui->lcdNumberMax->setDigitCount(ui->lcdNumberMax->digitCount()+1);
 }
 
 void MainWindow::ChangeMin()
 {
-    if(ui->lcdNumberMin->value() > ui->lcdNumberMax->value())
-        ui->lcdNumberMin->setDigitCount(ui->lcdNumberMin->value()-1);
+    if(ui->lcdNumberMin->digitCount() > ui->lcdNumberMax->digitCount())
+        ui->lcdNumberMin->setDigitCount(ui->lcdNumberMin->digitCount()-1);
 }
 
 void MainWindow::start()
@@ -102,14 +102,20 @@ void MainWindow::putData(){
     qint64 msecdate;
     QStringList list;
 
-    if(socket->state()== QAbstractSocket::ConnectedState){
+    int min = ui->horizontalSliderMin->value();
+    int max = ui->horizontalSliderMax->value();
 
+    if(socket->state() == QAbstractSocket::ConnectedState)
+    {
         msecdate = QDateTime::currentDateTime().toMSecsSinceEpoch();
-        str = "set "+ QString::number(msecdate) + " " +
-                QString::number(ui->horizontalSliderMin->value() +
-                                qrand()%(ui->horizontalSliderMax->value() - ui->horizontalSliderMin->value() +1))+"\r\n";
-        socket->write(str.toStdString().c_str()) + " bytes written";
+        str = "set "+ QString::number(msecdate) + " " + QString::number(min + (qrand() % (max - min + 1)))+"\r\n";
 
+        qDebug() << str;
+        qDebug() << socket->write(str.toStdString().c_str()) << " bytes written";
+        if(socket->waitForBytesWritten(3000))
+        {
+            qDebug() << "wrote";
+        }
 
         list.append(str);
         if(socket->waitForBytesWritten(3000)){
