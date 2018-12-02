@@ -76,7 +76,7 @@ void MainWindow::ChangeMin()
 
 void MainWindow::start()
 {
-    tempo= startTimer(ui->horizontalSliderTiming->value()*10);
+    tempo= startTimer(ui->horizontalSliderTiming->value()*1000);
 }
 
 void MainWindow::stop()
