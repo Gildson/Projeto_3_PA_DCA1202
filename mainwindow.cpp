@@ -86,7 +86,7 @@ void MainWindow::stop()
 
 void MainWindow::ChangeTime(int _tempo)
 {
-    tempo = _tempo-1;
+    tempo = _tempo;
     killTimer(timerId);
     timerId = startTimer(1000*tempo);
 }
